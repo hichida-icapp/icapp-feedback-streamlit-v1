@@ -3,6 +3,7 @@ import re
 import streamlit as st
 import dropbox
 
+# 20260219
 # 1ページPDFを画像として表示（ChromeのPDF埋め込みブロック回避）
 import fitz  # PyMuPDF
 from PIL import Image
