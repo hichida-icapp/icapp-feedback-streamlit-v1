@@ -3,7 +3,6 @@ import re
 import streamlit as st
 import dropbox
 
-# 20260219
 # 1ページPDFを画像として表示（ChromeのPDF埋め込みブロック回避）
 import fitz  # PyMuPDF
 from PIL import Image
@@ -76,6 +75,62 @@ def extract_id_from_filename(filename: str) -> str | None:
         return None
 
     return head
+
+
+# --------------------
+# PDFに氏名等を追記（ダウンロード用）
+# --------------------
+def stamp_pdf_first_page(
+    pdf_bytes: bytes,
+    name: str,
+    program: str = "",
+    name_xy: tuple[float, float] = (80, 340),
+    program_xy: tuple[float, float] = (80, 235),
+    box_wh: tuple[float, float] = (340, 25),
+    fontsize: float = 12,
+) -> bytes:
+    """1ページ目にテキストを追記したPDF(bytes)を返す。
+
+    - name_xy / program_xy は「左上座標」(x, y) のみを入力
+    - box_wh はテキストボックスの幅・高さ
+    NOTE: 座標はPDFテンプレートに依存。
+    """
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+    page = doc[0]
+
+    box_w, box_h = box_wh
+
+    # PyMuPDF座標: 左上が(0,0)、単位はpoint
+    nx, ny = name_xy
+    px, py = program_xy
+
+    name_rect = fitz.Rect(nx, ny, nx + box_w, ny + box_h)
+    program_rect = fitz.Rect(px, py, px + box_w, py + box_h)
+
+    color = (0, 0, 0)
+
+    if program:
+        page.insert_textbox(
+            program_rect,
+            program,
+            fontsize=fontsize,
+            fontname="helv",
+            color=color,
+            align=fitz.TEXT_ALIGN_LEFT,
+        )
+
+    page.insert_textbox(
+        name_rect,
+        name,
+        fontsize=fontsize,
+        fontname="helv",
+        color=color,
+        align=fitz.TEXT_ALIGN_LEFT,
+    )
+
+    out = doc.write()
+    doc.close()
+    return out
 
 
 # --------------------
@@ -200,11 +255,37 @@ if pd.isna(selected["path_lower"]):
 with st.spinner("PDFを取得中..."):
     pdf_bytes = download_file_bytes(dbx, selected["path_lower"])
 
+# --------------------
+# 座標調整UI（左上座標のみ）
+# --------------------
+st.subheader("PDFへ氏名を入れてダウンロード（座標調整）")
+col1, col2 = st.columns(2)
+with col1:
+    name_x = st.number_input("氏名X（左上）", value=80.0, step=1.0)
+    name_y = st.number_input("氏名Y（左上）", value=340.0, step=1.0)
+with col2:
+    prog_x = st.number_input("参加プログラムX（左上）", value=80.0, step=1.0)
+    prog_y = st.number_input("参加プログラムY（左上）", value=235.0, step=1.0)
+
+# ボックスサイズは固定（必要なら後でUI化）
+BOX_W, BOX_H = 340.0, 25.0
+
+# ダウンロード用に氏名入りPDFを生成（表示は元PDFのまま）
+stamped_pdf_bytes = stamp_pdf_first_page(
+    pdf_bytes,
+    name=str(selected["氏名"]),
+    program=str(selected["参加プログラム"]).strip() if pd.notna(selected.get("参加プログラム")) else "",
+    name_xy=(name_x, name_y),
+    program_xy=(prog_x, prog_y),
+    box_wh=(BOX_W, BOX_H),
+)
+
 st.download_button(
-    "PDFをダウンロード",
-    data=pdf_bytes,
+    "PDFをダウンロード（氏名入り）",
+    data=stamped_pdf_bytes,
     file_name=selected["PDFファイル"],
     mime="application/pdf",
 )
 
+# プレビューは元PDFのまま（高速化・安全側）
 show_pdf_first_page_as_image(pdf_bytes)
