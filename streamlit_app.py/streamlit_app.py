@@ -88,6 +88,7 @@ def stamp_pdf_first_page(
     program_xy: tuple[float, float] = (80, 235),
     box_wh: tuple[float, float] = (340, 25),
     fontsize: float = 12,
+    font_bytes: bytes | None = None,
 ) -> bytes:
     """1ページ目にテキストを追記したPDF(bytes)を返す。
 
@@ -259,6 +260,9 @@ with st.spinner("PDFを取得中..."):
 # 座標調整UI（左上座標のみ）
 # --------------------
 st.subheader("PDFへ氏名を入れてダウンロード（座標調整）")
+# 日本語フォント（TTF/OTF）をアップロード（未指定なら英数字向けフォールバック）
+font_up = st.file_uploader("日本語フォントをアップロード（.ttf / .otf）", type=["ttf", "otf"])
+font_bytes = font_up.read() if font_up is not None else None
 col1, col2 = st.columns(2)
 with col1:
     name_x = st.number_input("氏名X（左上）", value=80.0, step=1.0)
@@ -278,6 +282,7 @@ stamped_pdf_bytes = stamp_pdf_first_page(
     name_xy=(name_x, name_y),
     program_xy=(prog_x, prog_y),
     box_wh=(BOX_W, BOX_H),
+    font_bytes=font_bytes,
 )
 
 st.download_button(
