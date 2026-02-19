@@ -26,10 +26,10 @@ def stamp_pdf_first_page(
     pdf_bytes: bytes,
     name: str,
     program: str = "",
-    name_xy: tuple[float, float] = (80, 340),
-    program_xy: tuple[float, float] = (80, 235),
+    name_xy: tuple[float, float] = (140, 320),
+    program_xy: tuple[float, float] = (105, 190),
     box_wh: tuple[float, float] = (340, 25),  # 互換のため残す（未使用）
-    fontsize: float = 12,
+    fontsize: float = 11,
     font_bytes: bytes | None = None,
 ) -> bytes:
     """1ページ目に氏名・プログラムを追記したPDF(bytes)を返す。
