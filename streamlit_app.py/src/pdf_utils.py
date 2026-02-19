@@ -72,7 +72,7 @@ def stamp_pdf_first_page(
 			align=fitz.TEXT_ALIGN_LEFT,
 			fontfile=font_path,
 			# base14名。fontfile指定時も一応入れておく
-			fontname="helv",
+			
 		)
         
 
