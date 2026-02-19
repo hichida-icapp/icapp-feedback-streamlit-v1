@@ -65,6 +65,8 @@ def stamp_pdf_first_page(
 
 		if not os.path.exists(font_path):
 			raise FileNotFoundError(f"Font file not found: {font_path}")
+		
+        font = fitz.Font(fontfile=font_path)  # フォントファイルを読み込む（存在確認も兼ねる）
 
 		common_kwargs = dict(
 			fontsize=fontsize,
@@ -77,12 +79,25 @@ def stamp_pdf_first_page(
         
 
 		if program:
-			page.insert_textbox(program_rect, program, **common_kwargs)
+            page.insert_text(
+                fitz.Point(program_xy[0], program_xy[1]),
+                program,
+                fontsize=fontsize,
+                font=font,
+                color=color,
+            )
 
-		page.insert_textbox(name_rect, name, **common_kwargs)
+        # name（氏名）
+        page.insert_text(
+            fitz.Point(name_xy[0], name_xy[1]),
+            name,
+            fontsize=fontsize,
+            font=font,
+            color=color,
+        )
 
-		out = doc.write()
-		return out
+        out = doc.write()
+        return out
 
 	finally:
 		doc.close()
