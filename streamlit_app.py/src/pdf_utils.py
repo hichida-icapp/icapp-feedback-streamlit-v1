@@ -62,11 +62,6 @@ def stamp_pdf_first_page(
 		else:
 			font_path = default_font_path
 			
-    st.write("font_path:", font_path)
-    st.write("exists:", os.path.exists(font_path))
-    st.write("size:", os.path.getsize(font_path) if os.path.exists(font_path) else None)
-
-
 		if not os.path.exists(font_path):
 			raise FileNotFoundError(f"Font file not found: {font_path}")
 
