@@ -7,7 +7,7 @@ from src.mapping import read_mapping_csv, merge_mapping_with_pdfs, apply_memo_up
 from src.pdf_utils import show_pdf_first_page_as_image, stamp_pdf_first_page
 
 st.set_page_config(page_title="Dropbox PDF Viewer", layout="wide")
-st.title("Dropbox PDFビューア（氏名で選択 / ID紐付けCSV）")
+st.title("iCaPP Feed Back Sheet PDFビューア（氏名で選択 / ID紐付けCSV/ Drobox ver.）")
 
 # --------------------
 # CSV読込
