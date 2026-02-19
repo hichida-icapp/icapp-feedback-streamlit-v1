@@ -1,3 +1,5 @@
+# src/pdf_utils.py
+
 import io
 import os
 import tempfile
@@ -8,15 +10,18 @@ import streamlit as st
 
 
 def show_pdf_first_page_as_image(pdf_bytes: bytes, zoom: float = 2.0):
+	"""PDF 1ページ目を画像化して表示（ブラウザ埋め込み回避）"""
 	doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-	page = doc[0]
+	try:
+		page = doc[0]
+		mat = fitz.Matrix(zoom, zoom)
+		pix = page.get_pixmap(matrix=mat)
+		img = Image.open(io.BytesIO(pix.tobytes("png")))
 
-	mat = fitz.Matrix(zoom, zoom)
-	pix = page.get_pixmap(matrix=mat)
-	img = Image.open(io.BytesIO(pix.tobytes("png")))
-
-	# streamlit 1.54.0: use_container_width 非推奨対応
-	st.image(img, width="stretch")
+		# streamlit 1.54.0: use_container_width 非推奨対応
+		st.image(img, width="stretch")
+	finally:
+		doc.close()
 
 
 def stamp_pdf_first_page(
@@ -25,35 +30,24 @@ def stamp_pdf_first_page(
 	program: str = "",
 	name_xy: tuple[float, float] = (80, 340),
 	program_xy: tuple[float, float] = (80, 235),
-	box_wh: tuple[float, float] = (340, 25),
+	box_wh: tuple[float, float] = (340, 25),  # insert_text方式では未使用（互換のため残す）
 	fontsize: float = 12,
 	font_bytes: bytes | None = None,
 ) -> bytes:
-	"""1ページ目にテキストを追記したPDF(bytes)を返す。
+	"""1ページ目に氏名・プログラムを追記したPDF(bytes)を返す。
 
-	- デフォルトではリポジトリ同梱フォント（fonts/NotoSansJP-VariableFont_wght.ttf）を使います。
-	- font_bytes が渡された場合のみ、一時ファイルとして保存して利用します（任意）。
+	方針:
+	- 日本語フォントはリポジトリ同梱 `fonts/NotoSansJP-Regular.ttf` を使用
+	- （任意）font_bytes が渡された場合はそれを一時ファイル化して優先
+	- 描画は insert_text（1点座標）で行う。insert_textbox より日本語が通りやすい。
 	"""
-	doc = fitz.open(stream=pdf_bytes, filetype="pdf")
-	page = doc[0]
 
-	box_w, box_h = box_wh
-	nx, ny = name_xy
-	px, py = program_xy
-
-	name_rect = fitz.Rect(nx, ny, nx + box_w, ny + box_h)
-	program_rect = fitz.Rect(px, py, px + box_w, py + box_h)
-
-	color = (0, 0, 0)
-
-	# src/pdf_utils.py から見た相対パスで fonts/ を指す
+	# --- フォントパス確定 ---
 	this_dir = os.path.dirname(__file__)
-	# default_font_path = os.path.join(this_dir, "..", "fonts", "NotoSansJP-VariableFont_wght.ttf")
 	default_font_path = os.path.join(this_dir, "..", "fonts", "NotoSansJP-Regular.ttf")
 
 	tmp_font_path = None
 	try:
-		# font_bytes があればそれを優先（任意運用）
 		if font_bytes:
 			with tempfile.NamedTemporaryFile(delete=False, suffix=".ttf") as f:
 				f.write(font_bytes)
@@ -61,46 +55,43 @@ def stamp_pdf_first_page(
 			font_path = tmp_font_path
 		else:
 			font_path = default_font_path
-			
 
 		if not os.path.exists(font_path):
 			raise FileNotFoundError(f"Font file not found: {font_path}")
-		
-        font = fitz.Font(fontfile=font_path)  # フォントファイルを読み込む（存在確認も兼ねる）
 
-		common_kwargs = dict(
-			fontsize=fontsize,
-			color=color,
-			align=fitz.TEXT_ALIGN_LEFT,
-			fontfile=font_path,
-			# base14名。fontfile指定時も一応入れておく
-			
-		)
-        
+		# PyMuPDF フォント生成（ここが効いていれば日本語が出ます）
+		font = fitz.Font(fontfile=font_path)
 
-		if program:
-            page.insert_text(
-                fitz.Point(program_xy[0], program_xy[1]),
-                program,
-                fontsize=fontsize,
-                font=font,
-                color=color,
-            )
+		# --- PDFへ追記 ---
+		doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+		try:
+			page = doc[0]
+			color = (0, 0, 0)
 
-        # name（氏名）
-        page.insert_text(
-            fitz.Point(name_xy[0], name_xy[1]),
-            name,
-            fontsize=fontsize,
-            font=font,
-            color=color,
-        )
+			# 参加プログラム
+			if program:
+				page.insert_text(
+					fitz.Point(program_xy[0], program_xy[1]),
+					str(program),
+					fontsize=fontsize,
+					font=font,
+					color=color,
+				)
 
-        out = doc.write()
-        return out
+			# 氏名
+			page.insert_text(
+				fitz.Point(name_xy[0], name_xy[1]),
+				str(name),
+				fontsize=fontsize,
+				font=font,
+				color=color,
+			)
+
+			return doc.write()
+		finally:
+			doc.close()
 
 	finally:
-		doc.close()
 		if tmp_font_path and os.path.exists(tmp_font_path):
 			try:
 				os.remove(tmp_font_path)
