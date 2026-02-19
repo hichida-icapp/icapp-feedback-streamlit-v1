@@ -67,6 +67,7 @@ def stamp_pdf_first_page(
                 fontsize=fontsize,
                 color=color,
                 fontfile=font_path,
+                fontname="NotoSansJP",
             )
 
         # 氏名（1点座標に描画）
