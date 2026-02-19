@@ -9,6 +9,15 @@ from src.pdf_utils import show_pdf_first_page_as_image, stamp_pdf_first_page
 st.set_page_config(page_title="Dropbox PDF Viewer", layout="wide")
 st.title("Dropbox PDFビューア（氏名で選択 / ID紐付けCSV）")
 
+
+import os
+this_dir = os.path.dirname(__file__)
+font_path = os.path.join(this_dir, "fonts", "NotoSansJP-Regular.ttf")
+
+st.write("DEBUG font_path:", font_path)
+st.write("DEBUG exists:", os.path.exists(font_path))
+st.write("DEBUG size:", os.path.getsize(font_path) if os.path.exists(font_path) else None)
+
 # --------------------
 # CSV読込
 # --------------------
