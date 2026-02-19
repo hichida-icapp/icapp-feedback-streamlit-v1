@@ -9,15 +9,6 @@ from src.pdf_utils import show_pdf_first_page_as_image, stamp_pdf_first_page
 st.set_page_config(page_title="Dropbox PDF Viewer", layout="wide")
 st.title("Dropbox PDFビューア（氏名で選択 / ID紐付けCSV）")
 
-
-import os
-this_dir = os.path.dirname(__file__)
-font_path = os.path.join(this_dir, "fonts", "NotoSansJP-Regular.ttf")
-
-st.write("DEBUG font_path:", font_path)
-st.write("DEBUG exists:", os.path.exists(font_path))
-st.write("DEBUG size:", os.path.getsize(font_path) if os.path.exists(font_path) else None)
-
 # --------------------
 # CSV読込
 # --------------------
@@ -80,24 +71,44 @@ selected = options[options["表示名"] == selected_label].iloc[0]
 st.caption(f"ID: {selected['ID']} / 氏名: {selected['氏名']} / 参加プログラム: {selected['参加プログラム']}")
 
 # --------------------
-# 備考（メモ）編集 → CSV再出力
+# 備考（メモ）編集 → 確定ボタン → CSV再出力
 # --------------------
 st.subheader("備考メモ")
-new_memo = st.text_area(
-	"備考（メモ）を編集",
-	value="" if pd.isna(selected["備考"]) else str(selected["備考"]),
-	height=120,
+
+# 選択中のIDごとに入力状態を保持（選び直しても入力が飛びにくい）
+memo_key = f"memo_{selected['ID']}"
+if memo_key not in st.session_state:
+    st.session_state[memo_key] = "" if pd.isna(selected["備考"]) else str(selected["備考"])
+
+st.text_area(
+    "備考（メモ）を編集",
+    key=memo_key,
+    height=120,
 )
 
-updated_mapping = apply_memo_update(mapping_df, selected_id=str(selected["ID"]), new_memo=new_memo)
+col_apply, col_hint = st.columns([1, 3])
+with col_apply:
+    apply_clicked = st.button("変更を確定（備考へ反映）")
+with col_hint:
+    st.caption("編集後、このボタンを押すと更新後CSVのダウンロードが表示されます。")
 
-st.download_button(
-	"更新後CSVをダウンロード（備考反映）",
-	data=to_csv_bytes(updated_mapping),
-	file_name="mapping_updated.csv",
-	mime="text/csv",
-)
+if apply_clicked:
+    updated_mapping = apply_memo_update(
+        mapping_df,
+        selected_id=str(selected["ID"]),
+        new_memo=st.session_state[memo_key],
+    )
+    st.success("備考を反映しました。")
 
+    st.download_button(
+        "更新後CSVをダウンロード（備考反映）",
+        data=to_csv_bytes(updated_mapping),
+        file_name="mapping_updated.csv",
+        mime="text/csv",
+    )
+else:
+    st.info("変更を保存してCSVに反映するには『変更を確定（備考へ反映）』を押してください。")
+    
 # --------------------
 # PDF取得・表示
 # --------------------
@@ -117,11 +128,11 @@ st.subheader("PDFへ氏名を入れてダウンロード（座標調整）")
 
 col1, col2 = st.columns(2)
 with col1:
-	name_x = st.number_input("氏名X（左上）", value=140.0, step=1.0)
-	name_y = st.number_input("氏名Y（左上）", value=320.0, step=1.0)
+	name_x = st.number_input("氏名X（左上）", value=80.0, step=1.0)
+	name_y = st.number_input("氏名Y（左上）", value=340.0, step=1.0)
 with col2:
-	prog_x = st.number_input("参加プログラムX（左上）", value=105.0, step=1.0)
-	prog_y = st.number_input("参加プログラムY（左上）", value=190.0, step=1.0)
+	prog_x = st.number_input("参加プログラムX（左上）", value=80.0, step=1.0)
+	prog_y = st.number_input("参加プログラムY（左上）", value=235.0, step=1.0)
 
 BOX_W, BOX_H = 340.0, 25.0
 stamped_pdf_bytes = stamp_pdf_first_page(
@@ -131,7 +142,7 @@ stamped_pdf_bytes = stamp_pdf_first_page(
 	name_xy=(name_x, name_y),
 	program_xy=(prog_x, prog_y),
 	box_wh=(BOX_W, BOX_H),
-	fontsize=11,
+	fontsize=12,
 	# font は src/pdf_utils.py 側で同梱フォントを参照
 	font_bytes=None,
 )
