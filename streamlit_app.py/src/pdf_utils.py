@@ -49,7 +49,8 @@ def stamp_pdf_first_page(
 
 	# src/pdf_utils.py から見た相対パスで fonts/ を指す
 	this_dir = os.path.dirname(__file__)
-	default_font_path = os.path.join(this_dir, "..", "fonts", "NotoSansJP-VariableFont_wght.ttf")
+	# default_font_path = os.path.join(this_dir, "..", "fonts", "NotoSansJP-VariableFont_wght.ttf")
+	default_font_path = os.path.join(this_dir, "..", "fonts", "NotoSansJP-Regular.ttf")
 
 	tmp_font_path = None
 	try:
