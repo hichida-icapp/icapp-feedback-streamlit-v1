@@ -103,8 +103,8 @@ with st.spinner("PDFを取得中..."):
 # 座標調整UI（左上座標のみ）
 # --------------------
 st.subheader("PDFへ氏名を入れてダウンロード（座標調整）")
-font_up = st.file_uploader("日本語フォントをアップロード（.ttf / .otf）", type=["ttf", "otf"])
-font_bytes = font_up.read() if font_up is not None else None
+# フォントはリポジトリに同梱（例: fonts/NotoSansJP-VariableFont_wght.ttf）
+# Streamlit Cloud でも同じパスで参照できるようにしています
 
 col1, col2 = st.columns(2)
 with col1:
@@ -123,7 +123,8 @@ stamped_pdf_bytes = stamp_pdf_first_page(
 	program_xy=(prog_x, prog_y),
 	box_wh=(BOX_W, BOX_H),
 	fontsize=12,
-	font_bytes=font_bytes,
+	# font は src/pdf_utils.py 側で同梱フォントを参照
+	font_bytes=None,
 )
 
 st.download_button(
