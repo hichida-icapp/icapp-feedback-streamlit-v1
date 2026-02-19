@@ -65,15 +65,12 @@ def stamp_pdf_first_page(
 		if not os.path.exists(font_path):
 			raise FileNotFoundError(f"Font file not found: {font_path}")
 
-		common_kwargs = dict(
-			fontsize=fontsize,
-			color=color,
-			align=fitz.TEXT_ALIGN_LEFT,
-			fontfile=font_path,
-			# base14名。fontfile指定時も一応入れておく
-			fontname="helv",
-		)
-        
+		    common_kwargs = dict(
+            fontsize=fontsize,
+            color=color,
+            align=fitz.TEXT_ALIGN_LEFT,
+            fontfile=font_path,
+            )
 
 		if program:
 			page.insert_textbox(program_rect, program, **common_kwargs)
