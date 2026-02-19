@@ -128,11 +128,11 @@ st.subheader("PDFへ氏名を入れてダウンロード（座標調整）")
 
 col1, col2 = st.columns(2)
 with col1:
-	name_x = st.number_input("氏名X（左上）", value=80.0, step=1.0)
-	name_y = st.number_input("氏名Y（左上）", value=340.0, step=1.0)
+	name_x = st.number_input("氏名X（左上）", value=140.0, step=1.0)
+	name_y = st.number_input("氏名Y（左上）", value=320.0, step=1.0)
 with col2:
-	prog_x = st.number_input("参加プログラムX（左上）", value=80.0, step=1.0)
-	prog_y = st.number_input("参加プログラムY（左上）", value=235.0, step=1.0)
+	prog_x = st.number_input("参加プログラムX（左上）", value=105.0, step=1.0)
+	prog_y = st.number_input("参加プログラムY（左上）", value=190.0, step=1.0)
 
 BOX_W, BOX_H = 340.0, 25.0
 stamped_pdf_bytes = stamp_pdf_first_page(
@@ -142,7 +142,7 @@ stamped_pdf_bytes = stamp_pdf_first_page(
 	name_xy=(name_x, name_y),
 	program_xy=(prog_x, prog_y),
 	box_wh=(BOX_W, BOX_H),
-	fontsize=12,
+	fontsize=11,
 	# font は src/pdf_utils.py 側で同梱フォントを参照
 	font_bytes=None,
 )
