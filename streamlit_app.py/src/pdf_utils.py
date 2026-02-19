@@ -73,11 +73,7 @@ def stamp_pdf_first_page(
 			# base14名。fontfile指定時も一応入れておく
 			fontname="helv",
 		)
-		
-         import streamlit as st
-        st.write("font_path:", font_path)
-        st.write("exists:", os.path.exists(font_path))
-        st.write("size:", os.path.getsize(font_path))
+        
 
 		if program:
 			page.insert_textbox(program_rect, program, **common_kwargs)
