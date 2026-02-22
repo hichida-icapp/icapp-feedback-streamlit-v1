@@ -122,17 +122,17 @@ with st.spinner("PDFを取得中..."):
 # --------------------
 # 座標調整UI（左上座標のみ）
 # --------------------
-st.subheader("PDFへ氏名を入れてダウンロード（座標調整）")
-# フォントはリポジトリに同梱（例: fonts/NotoSansJP-VariableFont_wght.ttf）
-# Streamlit Cloud でも同じパスで参照できるようにしています
+with st.expander("PDFへ氏名を入れてダウンロード（座標調整）", expanded=False):
+    st.caption("座標は調整済みのため、通常は閉じたまま使えます。必要時のみ開いて調整してください。")
 
-col1, col2 = st.columns(2)
-with col1:
-	name_x = st.number_input("氏名X（左上）", value=140.0, step=1.0)
-	name_y = st.number_input("氏名Y（左上）", value=320.0, step=1.0)
-with col2:
-	prog_x = st.number_input("参加プログラムX（左上）", value=105.0, step=1.0)
-	prog_y = st.number_input("参加プログラムY（左上）", value=190.0, step=1.0)
+    col1, col2 = st.columns(2)
+    with col1:
+        name_x = st.number_input("氏名X（左上）", value=140.0, step=1.0)
+        name_y = st.number_input("氏名Y（左上）", value=320.0, step=1.0)
+    with col2:
+        prog_x = st.number_input("参加プログラムX（左上）", value=105.0, step=1.0)
+        prog_y = st.number_input("参加プログラムY（左上）", value=190.0, step=1.0)
+		
 
 BOX_W, BOX_H = 340.0, 25.0
 stamped_pdf_bytes = stamp_pdf_first_page(
