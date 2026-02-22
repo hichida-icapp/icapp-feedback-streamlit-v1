@@ -123,16 +123,47 @@ with st.spinner("PDFを取得中..."):
 # --------------------
 # 座標調整UI（左上座標のみ）
 # --------------------
-with st.expander("PDFへ氏名を入れてダウンロード（座標調整）", expanded=False):
-    st.caption("座標は調整済みのため、通常は閉じたまま使えます。必要時のみ開いて調整してください。")
 
+# --- デフォルト（expander を開かなくても必ず定義される） ---
+name_x, name_y = 140.0, 320.0
+prog_x, prog_y = 105.0, 190.0
+
+logo_x, logo_y = 105.0, 150.0
+logo_w, logo_h = 180.0, 60.0
+
+# --------------------
+# 座標調整UI + ロゴ（PNG）
+# --------------------
+with st.expander("PDFへ氏名を入れてダウンロード（座標調整）", expanded=False):
+    # ここは「値を更新するだけ」にする
     col1, col2 = st.columns(2)
     with col1:
-        name_x = st.number_input("氏名X（左上）", value=140.0, step=1.0)
-        name_y = st.number_input("氏名Y（左上）", value=320.0, step=1.0)
+        name_x = st.number_input("氏名X（左上）", value=name_x, step=1.0)
+        name_y = st.number_input("氏名Y（左上）", value=name_y, step=1.0)
     with col2:
-        prog_x = st.number_input("参加プログラムX（左上）", value=105.0, step=1.0)
-        prog_y = st.number_input("参加プログラムY（左上）", value=190.0, step=1.0)
+        prog_x = st.number_input("参加プログラムX（左上）", value=prog_x, step=1.0)
+        prog_y = st.number_input("参加プログラムY（左上）", value=prog_y, step=1.0)
+
+    st.subheader("ロゴ枠（左上 + 幅高さ）")
+    col3, col4 = st.columns(2)
+    with col3:
+        logo_x = st.number_input("ロゴX（左上）", value=logo_x, step=1.0)
+        logo_y = st.number_input("ロゴY（左上）", value=logo_y, step=1.0)
+    with col4:
+        logo_w = st.number_input("ロゴ幅W", value=logo_w, step=1.0, min_value=1.0)
+        logo_h = st.number_input("ロゴ高さH", value=logo_h, step=1.0, min_value=1.0)
+
+# expander の外で普通に参照してOKになる
+stamped_pdf_bytes = stamp_pdf_first_page(
+    pdf_bytes,
+    name=str(selected["氏名"]),
+    program=str(selected["参加プログラム"]).strip() if pd.notna(selected.get("参加プログラム")) else "",
+    name_xy=(name_x, name_y),
+    program_xy=(prog_x, prog_y),
+    logo_bytes=st.session_state.get("program_logo_bytes"),
+    logo_rect_xywh=(logo_x, logo_y, logo_w, logo_h),
+)
+
 
 BOX_W, BOX_H = 340.0, 25.0
 stamped_pdf_bytes = stamp_pdf_first_page(
