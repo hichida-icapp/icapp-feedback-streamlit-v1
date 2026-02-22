@@ -30,6 +30,11 @@ def stamp_pdf_first_page(
     program_xy: tuple[float, float] = (105, 190),
     box_wh: tuple[float, float] = (340, 25),  # 互換のため残す（未使用）
     fontsize: float = 11,
+    # ロゴ（PNG）
+    logo_bytes: bytes | None = None,
+    # (x, y, w, h)
+    logo_rect_xywh: tuple[float, float, float, float] = (105, 150, 180, 60),
+    debug_draw_logo_rect: bool = False,
     font_bytes: bytes | None = None,
 ) -> bytes:
     """1ページ目に氏名・プログラムを追記したPDF(bytes)を返す。
@@ -69,6 +74,15 @@ def stamp_pdf_first_page(
                 fontfile=font_path,
                 fontname="NotoSansJP",
             )
+        # 参加プログラム：ロゴ（枠に収めて貼り込み）
+        if logo_bytes:
+            x, y, w, h = logo_rect_xywh
+            rect = fitz.Rect(x, y, x + w, y + h)
+            if debug_draw_logo_rect:
+                # 位置・サイズ決定用（赤枠）
+                page.draw_rect(rect, color=(1, 0, 0), width=1)
+            # ロゴを枠内に貼る（縦横比維持）
+            page.insert_image(rect, stream=logo_bytes, keep_proportion=True)
 
         # 氏名（1点座標に描画）
         page.insert_text(

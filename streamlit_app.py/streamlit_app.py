@@ -1,3 +1,4 @@
+import hashlib
 import pandas as pd
 import streamlit as st
 
@@ -7,7 +8,7 @@ from src.mapping import read_mapping_csv, merge_mapping_with_pdfs, apply_memo_up
 from src.pdf_utils import show_pdf_first_page_as_image, stamp_pdf_first_page
 
 st.set_page_config(page_title="Dropbox PDF Viewer", layout="wide")
-st.title("iCaPP Feed Back Sheet PDFビューア（氏名で選択 / ID紐付けCSV/ Drobox ver.）")
+st.title("Dropbox PDFビューア（氏名で選択 / ID紐付けCSV）")
 
 # --------------------
 # CSV読込
@@ -28,7 +29,7 @@ st.divider()
 # PDF一覧（Dropbox）
 # --------------------
 folder_path = st.text_input(
-	"Dropboxフォルダパス（直下のPDFを一覧表示）",
+	"【原則，変更しない】Dropboxフォルダパス（直下のPDFを一覧表示）",
 	value="/PDF",
 	placeholder="例: /PDF",
 )
@@ -132,7 +133,6 @@ with st.expander("PDFへ氏名を入れてダウンロード（座標調整）",
     with col2:
         prog_x = st.number_input("参加プログラムX（左上）", value=105.0, step=1.0)
         prog_y = st.number_input("参加プログラムY（左上）", value=190.0, step=1.0)
-		
 
 BOX_W, BOX_H = 340.0, 25.0
 stamped_pdf_bytes = stamp_pdf_first_page(
@@ -143,6 +143,11 @@ stamped_pdf_bytes = stamp_pdf_first_page(
 	program_xy=(prog_x, prog_y),
 	box_wh=(BOX_W, BOX_H),
 	fontsize=11,
+	# ロゴ（PNG）
+	logo_bytes=st.session_state.get("program_logo_bytes"),
+	logo_rect_xywh=(logo_x, logo_y, logo_w, logo_h),
+	# デバッグ：枠だけ見たい時は True
+	debug_draw_logo_rect=False,
 	# font は src/pdf_utils.py 側で同梱フォントを参照
 	font_bytes=None,
 )
