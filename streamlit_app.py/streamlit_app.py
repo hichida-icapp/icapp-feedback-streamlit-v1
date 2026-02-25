@@ -129,13 +129,13 @@ prog_x, prog_y = 105.0, 190.0
 logo_x, logo_y = 105.0, 150.0
 logo_w, logo_h = 180.0, 60.0
 
-with st.expander("PDFへ氏名を入れてダウンロード（座標調整）", expanded=False):
-	st.caption("座標は調整済みのため、通常は閉じたまま使えます。必要時のみ開いて調整してください。")
+with st.expander("プログラム：ロゴのアップロード；PDFへ氏名・ロゴ（座標調整）", expanded=False):
+	st.caption("備考：座標は調整済み．必要時のみ開いて調整してください。")
 
 	# ロゴアップロード（セッション内保持）
 	st.subheader("参加プログラム：ロゴ（PNG）")
 	uploaded_logo = st.file_uploader(
-		"ロゴ画像（PNG）をアップロード（このセッション内で保持）",
+		"ロゴ画像（PNG）をアップロード（このセッション内で保持）：サイズ 幅180px　高さ60px のPNG形式の画像ファイルを用意してください．",
 		type=["png"],
 		key="program_logo_uploader",
 	)
