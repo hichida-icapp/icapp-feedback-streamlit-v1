@@ -132,25 +132,6 @@ logo_w, logo_h = 180.0, 60.0
 with st.expander("PDFへ氏名を入れてダウンロード（座標調整）", expanded=False):
 	st.caption("座標は調整済みのため、通常は閉じたまま使えます。必要時のみ開いて調整してください。")
 
-	# 文字座標
-	col1, col2 = st.columns(2)
-	with col1:
-		name_x = st.number_input("氏名X（左上）", value=name_x, step=1.0)
-		name_y = st.number_input("氏名Y（左上）", value=name_y, step=1.0)
-	with col2:
-		prog_x = st.number_input("参加プログラムX（左上）", value=prog_x, step=1.0)
-		prog_y = st.number_input("参加プログラムY（左上）", value=prog_y, step=1.0)
-
-	# ロゴ枠
-	st.subheader("ロゴ枠（左上 + 幅高さ）")
-	col3, col4 = st.columns(2)
-	with col3:
-		logo_x = st.number_input("ロゴX（左上）", value=logo_x, step=1.0)
-		logo_y = st.number_input("ロゴY（左上）", value=logo_y, step=1.0)
-	with col4:
-		logo_w = st.number_input("ロゴ幅W", value=logo_w, step=1.0, min_value=1.0)
-		logo_h = st.number_input("ロゴ高さH", value=logo_h, step=1.0, min_value=1.0)
-
 	# ロゴアップロード（セッション内保持）
 	st.subheader("参加プログラム：ロゴ（PNG）")
 	uploaded_logo = st.file_uploader(
@@ -175,6 +156,26 @@ with st.expander("PDFへ氏名を入れてダウンロード（座標調整）",
 		st.image(st.session_state.program_logo_bytes, caption="現在のロゴ", width=220)
 	else:
 		st.info("ロゴ未設定（必要ならPNGをアップロードしてください）。")
+
+	# 文字座標
+	col1, col2 = st.columns(2)
+	with col1:
+		name_x = st.number_input("氏名X（左上）", value=name_x, step=1.0)
+		name_y = st.number_input("氏名Y（左上）", value=name_y, step=1.0)
+	with col2:
+		prog_x = st.number_input("参加プログラムX（左上）", value=prog_x, step=1.0)
+		prog_y = st.number_input("参加プログラムY（左上）", value=prog_y, step=1.0)
+
+	# ロゴ枠
+	st.subheader("ロゴ枠（左上 + 幅高さ）")
+	col3, col4 = st.columns(2)
+	with col3:
+		logo_x = st.number_input("ロゴX（左上）", value=logo_x, step=1.0)
+		logo_y = st.number_input("ロゴY（左上）", value=logo_y, step=1.0)
+	with col4:
+		logo_w = st.number_input("ロゴ幅W", value=logo_w, step=1.0, min_value=1.0)
+		logo_h = st.number_input("ロゴ高さH", value=logo_h, step=1.0, min_value=1.0)
+
 
 BOX_W, BOX_H = 340.0, 25.0
 stamped_pdf_bytes = stamp_pdf_first_page(
