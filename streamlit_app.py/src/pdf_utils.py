@@ -1,5 +1,4 @@
 # src/pdf_utils.py
-
 import io
 import os
 import tempfile
@@ -43,7 +42,6 @@ def stamp_pdf_first_page(
     - （任意）font_bytes が渡された場合は一時ファイル化して優先
     - PyMuPDF 1.27.1 では insert_text に font= は渡せないので fontfile= を使う
     """
-
     this_dir = os.path.dirname(__file__)
     default_font_path = os.path.join(this_dir, "..", "fonts", "NotoSansJP-Regular.ttf")
 
@@ -74,13 +72,16 @@ def stamp_pdf_first_page(
                 fontfile=font_path,
                 fontname="NotoSansJP",
             )
+
         # 参加プログラム：ロゴ（枠に収めて貼り込み）
         if logo_bytes:
             x, y, w, h = logo_rect_xywh
             rect = fitz.Rect(x, y, x + w, y + h)
+
             if debug_draw_logo_rect:
                 # 位置・サイズ決定用（赤枠）
                 page.draw_rect(rect, color=(1, 0, 0), width=1)
+
             # ロゴを枠内に貼る（縦横比維持）
             page.insert_image(rect, stream=logo_bytes, keep_proportion=True)
 
