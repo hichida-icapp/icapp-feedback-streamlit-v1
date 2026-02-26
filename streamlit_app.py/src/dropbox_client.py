@@ -12,7 +12,6 @@ def get_dbx(secrets) -> dropbox.Dropbox:
         app_secret=app_secret,
     )
 
-
 def list_pdfs_in_folder(dbx: dropbox.Dropbox, folder_path: str):
     """直下のPDFだけ（再帰しない）"""
     res = dbx.files_list_folder(folder_path, recursive=False)
