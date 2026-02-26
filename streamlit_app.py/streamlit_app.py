@@ -146,7 +146,7 @@ with st.spinner("PDFを取得中..."):
 # デフォルト（expander を開かなくても必ず定義される）
 name_x, name_y = 140.0, 320.0
 prog_x, prog_y = 105.0, 190.0
-logo_x, logo_y = 105.0, 150.0
+logo_x, logo_y = 105.0, 210.0
 logo_w, logo_h = 180.0, 60.0
 
 with st.expander("プログラム：ロゴのアップロード；PDFへ氏名・ロゴ（座標調整）", expanded=False):
